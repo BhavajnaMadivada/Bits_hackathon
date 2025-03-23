@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffcccc 100%);
+            min-height: 100vh;
+        }
+        h2 {
+            color: #ff6347;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #e5533d;
+            margin: 20px 0 10px;
+        }
+        #qr-reader {
+            width: 300px;
+            margin: 0 auto 20px;
+            border: 2px solid #ff6347;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #2c3e50;
+        }
+        #search-string {
+            padding: 8px 12px;
+            width: 250px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        #search-string:focus {
+            outline: none;
+            border-color: #ff6347;
+            box-shadow: 0 0 5px rgba(255, 99, 71, 0.3);
+        }
+        #qr-file {
+            padding: 5px;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #qr-file:hover {
+            background: #fff5f5;
+        }
+        .button-container {
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            background: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #e5533d;
+        }
+        #search-string:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+        #success-count {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h2>QR Code Scanner</h2>
+    <input type="text" id="search-string" placeholder="Enter string to search">
+    <div class="button-container">
+        <button id="set-default">Set as Default</button>
+        <button id="modify" disabled>Modify</button>
+    </div>
+    <div id="qr-reader"></div>
+    <p id="result">Scan a QR Code</p>
+    <p id="success-count">Successful Scans for Event: 0</p>
+    
+    <h3>Upload QR Image</h3>
+    <input type="file" id="qr-file" accept="image/*">
+    
+    <script>
+        let defaultString = "";
+        let isCameraActive = false;
+        let currentEventId = null; // To store the eventId from the QR code
+
+        async function recordSuccessfulScan(eventId) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/events/${eventId}/scan`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById("success-count").innerText = 
+                        `Successful Scans for Event: ${data.successCount}`;
+                } else {
+                    console.error("Error from server:", data.message);
+                }
+            } catch (error) {
+                console.error("Network error:", error);
+            }
+        }
+
+        function checkStringInResult(decodedText) {
+            const searchString = document.getElementById("search-string").value.trim() || defaultString;
+            const resultElement = document.getElementById("result");
+
+            // Assuming the decodedText contains an eventId (e.g., "EVT001")
+            const eventIdMatch = decodedText.match(/EVT\d+/); // Simple regex to extract eventId
+            currentEventId = eventIdMatch ? eventIdMatch[0] : null;
+
+            if (searchString === "") {
+                resultElement.innerText = "Scanned QR Code: " + decodedText;
+                return;
+            }
+
+            if (decodedText.includes(searchString)) {
+                resultElement.innerText = `Success: "${searchString}" found in "${decodedText}"`;
+                resultElement.style.color = '#ff6347';
+                alert("Success: String found in QR code!");
+                if (currentEventId) {
+                    recordSuccessfulScan(currentEventId); // Record the scan on the server
+                }
+            } else {
+                resultElement.innerText = `Failed: "${searchString}" not found in "${decodedText}"`;
+                resultElement.style.color = '#c0392b';
+                alert("Failed: String not found in QR code!");
+            }
+        }
+        
+        function onScanSuccess(decodedText) {
+            checkStringInResult(decodedText);
+        }
+        
+        function onScanFailure(error) {
+            console.warn("Scan Error:", error);
+        }
+        
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            { fps: 10, qrbox: 250 }, 
+            onScanSuccess, 
+            onScanFailure
+        ).then(() => {
+            isCameraActive = true;
+        }).catch(err => {
+            console.error("Camera start failed:", err);
+            isCameraActive = false;
+        });
+        
+        document.getElementById("qr-file").addEventListener("change", function(event) {
+            if (isCameraActive) {
+                alert("Only one access method is available at a time. Please stop the camera before uploading a file.");
+                this.value = "";
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            html5QrCode.scanFile(file, true)
+                .then(decodedText => {
+                    checkStringInResult(decodedText);
+                })
+                .catch(err => {
+                    document.getElementById("result").innerText = "Error: QR Code not found in image";
+                    console.error("File scan error:", err);
+                });
+        });
+
+        const searchInput = document.getElementById("search-string");
+        const setDefaultBtn = document.getElementById("set-default");
+        const modifyBtn = document.getElementById("modify");
+
+        setDefaultBtn.addEventListener("click", function() {
+            defaultString = searchInput.value.trim();
+            searchInput.disabled = true;
+            setDefaultBtn.disabled = true;
+            modifyBtn.disabled = false;
+            alert(`Default string set to: "${defaultString}"`);
+        });
+
+        modifyBtn.addEventListener("click", function() {
+            searchInput.disabled = false;
+            setDefaultBtn.disabled = false;
+            modifyBtn.disabled = true;
+            searchInput.focus();
+        });
+    </script>
+</body>
+</html>

@@ -15,114 +15,123 @@
             background-color: #f0f0f0;
             min-height: 100vh;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
         }
         .event-container {
             width: 100vw;
             background-color: white;
-            padding: 30px 50px;
+            padding: 20px 40px;
             display: flex;
             flex-direction: column;
-            align-items: center;
             flex-grow: 1;
         }
         .event-header {
             text-align: center;
             color: #080706;
-            margin-bottom: 40px;
-            padding: 15px;
-            font-size: 3em;
-        }
-        .month-section {
-            width: 98%;
-            margin-bottom: 50px;
-        }
-        .month-title {
-            color: #ff6347;
-            border-bottom: 3px solid #ff6347;
-            padding-bottom: 8px;
-            margin-bottom: 25px;
-            font-size: 2.2em;
+            margin-bottom: 30px;
+            padding: 10px;
+            font-size: 1.8em;
         }
         .events-row {
             display: flex;
             gap: 50px;
             flex-wrap: wrap;
             justify-content: flex-start;
+            padding: 0 20px;
+            position: relative;
         }
         .event-card {
             border: 1px solid #ddd;
-            padding: 30px 40px;
+            padding: 15px 30px;
             border-radius: 5px;
             background-color: #fff;
-            width: 500px;
+            width: 400px;
             flex: 0 0 auto;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 3px 7px rgba(255, 99, 71, 0.2);
-            transition: transform 0.2s ease;
-        }
-        .event-card:hover {
-            transform: translateY(-5px);
+            box-shadow: 0 2px 5px rgba(255, 99, 71, 0.2);
         }
         .event-title {
             color: #000000;
-            margin: 0 0 15px 0;
-            font-size: 1.8em;
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .event-title .cost {
             color: #ff6347;
-            font-size: 1.1em;
+            font-size: 0.9em;
             font-weight: normal;
         }
         .event-details p {
-            margin: 8px 0;
+            margin: 5px 0;
             color: #666;
-            font-size: 1.3em;
+            font-size: 1em;
         }
         .event-photo {
             width: 100%;
-            height: 250px;
+            height: 180px;
             object-fit: cover;
             border-radius: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .register-btn {
             background-color: #ff6347;
             color: white;
-            padding: 10px 30px;
+            padding: 8px 20px;
             border: none;
+            width: 60%;
+            align-self: center;
             border-radius: 4px;
             cursor: pointer;
-            margin-top: auto;
-            font-size: 1.3em;
-            transition: background-color 0.2s ease;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
         }
         .register-btn:hover {
-            background-color: #e5533d;
+            background-color: #e82a0c;
         }
         .completed-btn {
             background-color: #666;
             color: white;
-            padding: 10px 30px;
+            padding: 8px 20px;
             border: none;
             border-radius: 4px;
             margin-top: auto;
             cursor: default;
-            font-size: 1.3em;
+            font-size: 1em;
+        }
+        .red-line {
+            width: 100%;
+            height: 2px;
+            background-color: #ff6347;
+            border: none;
+            margin: 20px 0;
+        }
+        .vertical-red-line {
+            width: 2px;
+            height: 100%;
+            background-color: #ff6347;
+            position: absolute;
+            left: calc(400px + 25px);
+            top: 0;
+        }
+        .month-section {
+            width: 100%;
+        }
+        .month-title {
+            color: #ff6347;
+            font-size: 1.8em;
+            margin-bottom: 15px;
         }
         footer {
             width: 100vw;
             background-color: #ff6347;
             color: white;
             text-align: center;
-            padding: 20px 40px;
-            font-size: 1.3em;
-            margin-top: auto; /* Ensures footer stays at the bottom */
+            padding: 15px 30px;
+            font-size: 1em;
+            position: relative;
+            bottom: 0;
         }
         footer a {
             color: #fff;
@@ -134,11 +143,15 @@
         @media (max-width: 768px) {
             .event-card {
                 width: 100%;
-                max-width: 500px;
+                max-width: 400px;
             }
             .events-row {
                 flex-direction: column;
                 align-items: center;
+                padding: 0;
+            }
+            .vertical-red-line {
+                display: none;
             }
         }
     </style>
@@ -158,102 +171,62 @@
             try {
                 const response = await fetch('http://localhost:3000/api/events');
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.status}`);
+                    throw new Error('Network response was not ok');
                 }
                 const events = await response.json();
-                console.log("Fetched events:", events); // Debug log
 
                 const groupedEvents = {
-                    april: events.filter(e => {
-                        const eventDate = new Date(e.date);
-                        return !isNaN(eventDate) && eventDate.getMonth() === 3 && eventDate.getFullYear() === 2025 && e.status === "upcoming";
-                    }),
-                    may: events.filter(e => {
-                        const eventDate = new Date(e.date);
-                        return !isNaN(eventDate) && eventDate.getMonth() === 4 && eventDate.getFullYear() === 2025 && e.status === "upcoming";
-                    }),
-                    june: events.filter(e => {
-                        const eventDate = new Date(e.date);
-                        return !isNaN(eventDate) && eventDate.getMonth() === 5 && eventDate.getFullYear() === 2025 && e.status === "upcoming";
-                    }),
+                    april: events.filter(e => new Date(e.date).getMonth() === 3 && e.status === "upcoming"),
+                    may: events.filter(e => new Date(e.date).getMonth() === 4 && e.status === "upcoming"),
+                    june: events.filter(e => new Date(e.date).getMonth() === 5 && e.status === "upcoming"),
                     past: events.filter(e => e.status === "completed")
                 };
 
                 let html = '';
 
-                // April Events
                 if (groupedEvents.april.length > 0) {
-                    html += `
-                        <div class="month-section">
-                            <h2 class="month-title">April 2025</h2>
-                            <div class="events-row">
-                    `;
+                    html += `<div class="month-section"><h2 class="month-title">April 2025</h2><div class="events-row">`;
                     groupedEvents.april.forEach(event => {
                         html += generateEventCard(event, 'register-btn');
                     });
-                    html += `
-                            </div>
-                        </div>
-                    `;
+                    html += `</div></div><hr class="red-line">`;
                 }
 
-                // May Events (Vertical)
                 if (groupedEvents.may.length > 0) {
-                    html += `
-                        <div class="month-section">
-                            <h2 class="month-title">May 2025</h2>
-                            <div class="events-row" style="flex-direction: column;">
-                    `;
+                    html += `<div class="month-section"><h2 class="month-title">May 2025</h2><div class="events-row">`;
                     groupedEvents.may.forEach(event => {
                         html += generateEventCard(event, 'register-btn');
                     });
-                    html += `
-                            </div>
-                        </div>
-                    `;
+                    html += `</div></div><hr class="red-line">`;
                 }
 
-                // June Events
                 if (groupedEvents.june.length > 0) {
-                    html += `
-                        <div class="month-section">
-                            <h2 class="month-title">June 2025</h2>
-                            <div class="events-row">
-                    `;
+                    html += `<div class="month-section"><h2 class="month-title">June 2025</h2><div class="events-row">`;
                     groupedEvents.june.forEach(event => {
                         html += generateEventCard(event, 'register-btn');
                     });
-                    html += `
-                            </div>
-                        </div>
-                    `;
+                    html += `</div></div><hr class="red-line">`;
                 }
 
-                // Past Events
                 if (groupedEvents.past.length > 0) {
-                    html += `
-                        <div class="month-section">
-                            <h2 class="month-title">Past Events</h2>
-                            <div class="events-row">
-                    `;
+                    html += `<div class="month-section"><h2 class="month-title">Past Events</h2><div class="events-row">`;
                     groupedEvents.past.forEach(event => {
                         html += generateEventCard(event, 'completed-btn', true);
                     });
-                    html += `
-                            </div>
-                        </div>
-                    `;
-                }
-
-                // If no events are found, display a message
-                if (html === '') {
-                    html = '<p>No events found for 2025.</p>';
+                    html += `</div></div>`;
                 }
 
                 document.getElementById('events-content').innerHTML = html;
 
-                // Add event listeners to buttons after rendering
-                addButtonListeners();
+                // Add event listeners to register buttons
+                document.querySelectorAll('.register-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const card = e.target.closest('.event-card');
+                        const name = card.querySelector('.event-title span:first-child').textContent;
+                        const cost = parseFloat(card.querySelector('.cost').textContent.replace(/[^0-9.]/g, ''));
+                        window.location.href = `payment.html?name=${encodeURIComponent(name)}&cost=${cost}`;
+                    });
+                });
             } catch (error) {
                 console.error('Error fetching events:', error);
                 document.getElementById('events-content').innerHTML = 
@@ -262,55 +235,23 @@
         }
 
         function generateEventCard(event, buttonClass, isCompleted = false) {
-            // Provide default values for missing or invalid fields
-            const name = event.name || "Unnamed Event";
-            const image = event.image || "https://via.placeholder.com/500x250?text=No+Image";
-            const cost = event.cost || "Free";
-            const date = event.date && !isNaN(new Date(event.date)) ? new Date(event.date).toLocaleDateString() : "TBD";
-            const time = event.time || "TBD";
-            const location = event.location || "TBD";
-            const id = event.id || "unknown";
-
             return `
                 <div class="event-card">
-                    <img src="${image}" alt="${name}" class="event-photo">
+                    <img src="${event.image}" alt="${event.name}" class="event-photo">
                     <h3 class="event-title">
-                        <span>${name}</span>
-                        <span class="cost">${cost}${isCompleted ? ' (Completed)' : ''}</span>
+                        <span>${event.name}</span>
+                        <span class="cost">${event.cost}${isCompleted ? ' (Completed)' : ''}</span>
                     </h3>
                     <div class="event-details">
-                        <p><strong>Date:</strong> ${date}</p>
-                        <p><strong>Time:</strong> ${time}</p>
-                        <p><strong>Location:</strong> ${location}</p>
+                        <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${event.time}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
                     </div>
-                    <button class="${buttonClass}" data-event-id="${id}">
-                        ${isCompleted ? 'Completed' : 'Register Now'}
-                    </button>
+                    <button class="${buttonClass}">${isCompleted ? 'Completed' : 'Register Now'}</button>
                 </div>
             `;
         }
 
-        function addButtonListeners() {
-            // Register buttons
-            document.querySelectorAll('.register-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const eventId = button.getAttribute('data-event-id');
-                    alert(`Registering for event with ID: ${eventId}`);
-                    // In a real app, you might redirect to a registration page, e.g.:
-                    // window.location.href = `/register.html?eventId=${eventId}`;
-                });
-            });
-
-            // Completed buttons
-            document.querySelectorAll('.completed-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const eventId = button.getAttribute('data-event-id');
-                    alert(`This event (ID: ${eventId}) has already completed.`);
-                });
-            });
-        }
-
-        // Load events when the page loads
         fetchEvents();
     </script>
 </body>

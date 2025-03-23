@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiesta Admin - Manage Events</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            transition: margin-left 0.3s ease;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: margin-left 0.3s ease;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-icon:hover {
+            transform: rotate(90deg);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 101;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .nav-menu.active {
+            left: 0;
+        }
+
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 60px;
+        }
+
+        .nav-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu li a {
+            text-decoration: none;
+            color: #000;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-menu li a:hover {
+            color: #ff4d4d;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu li a::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .nav-menu li a[href="admin_profile.html"]::before { content: '👤'; }
+        .nav-menu li a[href="add_event.html"]::before { content: '➕'; }
+        .nav-menu li a[href="qr_scanner.html"]::before { content: '📷'; }
+        .nav-menu li a[href="logout.html"]::before { content: '🚪'; }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #e04343;
+            transform: scale(1.05);
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .nav-menu.active ~ header,
+        .nav-menu.active ~ main {
+            margin-left: 250px;
+        }
+
+        body.sidebar-open {
+            margin-left: 250px;
+        }
+
+        .admin-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ff4d4d;
+        }
+
+        .event-container {
+            width: 100%;
+            padding: 20px;
+        }
+
+        .events-row {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .event-card {
+            border: 1px solid #ddd;
+            padding: 15px 30px;
+            border-radius: 5px;
+            background-color: #fff;
+            width: 400px;
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(255, 99, 71, 0.2);
+        }
+
+        .event-title {
+            color: #000000;
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-title .cost {
+            color: #ff6347;
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 1em;
+        }
+
+        .event-photo {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .edit-btn {
+            background-color: #ff6347;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+
+        .edit-btn:hover {
+            background-color: #e82a0c;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                width: 200px;
+            }
+
+            .nav-menu.active ~ header,
+            .nav-menu.active ~ main,
+            body.sidebar-open {
+                margin-left: 200px;
+            }
+
+            .event-card {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .events-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu-icon">☰</div>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="admin_profile.html" class="nav-link">Profile</a></li>
+                <li><a href="add_event.html" class="nav-link">Add Event</a></li>
+                <li><a href="qr_scanner.html" class="nav-link">QR Scanner</a></li>
+                <li><a href="logout.html" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+        <h1>Fiesta Admin</h1>
+        <button class="logout-btn">LOGOUT</button>
+    </header>
+    <main>
+        <div class="admin-section">
+            <h2>Current Events</h2>
+            <div class="event-container">
+                <div class="events-row" id="events-content"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sidebar toggle
+        const menuIcon = document.querySelector('.menu-icon');
+        const navMenu = document.querySelector('.nav-menu');
+        const body = document.querySelector('body');
+
+        menuIcon.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            body.classList.toggle('sidebar-open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuIcon.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                body.classList.remove('sidebar-open');
+            }
+        });
+
+        // Navigation link interactivity
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                alert(Navigating to ${href.replace('.html', '')} page...);
+                window.location.href = href;
+            });
+        });
+
+        // Logout button
+        document.querySelector('.logout-btn').addEventListener('click', () => {
+            window.location.href = 'logout.html';
+        });
+
+        // Fetch and display events
+        async function fetchEvents() {
+            try {
+                const response = await fetch('http://localhost:3000/api/events');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const events = await response.json();
+                const eventsContent = document.getElementById('events-content');
+                eventsContent.innerHTML = events.map(event => generateEventCard(event)).join('');
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                document.getElementById('events-content').innerHTML = 
+                    '<p>Sorry, unable to load events at this time. Please try again later.</p>';
+            }
+        }
+
+        function generateEventCard(event) {
+            return `
+                <div class="event-card">
+                    <img src="${event.image}" alt="${event.name}" class="event-photo">
+                    <h3 class="event-title">
+                        <span>${event.name}</span>
+                        <span class="cost">${event.cost}</span>
+                    </h3>
+                    <div class="event-details">
+                        <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${event.time}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
+                        <p>${event.description}</p>
+                    </div>
+                    <button class="edit-btn" onclick="window.location.href='edit_event.html'">Edit Event</button>
+
+                </div>
+            `;
+        }
+
+        fetchEvents();
+    </script>
+</body>
+</html>

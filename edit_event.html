@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiesta Admin - Edit Event</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            transition: margin-left 0.3s ease;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: margin-left 0.3s ease;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-icon:hover {
+            transform: rotate(90deg);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 101;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .nav-menu.active {
+            left: 0;
+        }
+
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 60px;
+        }
+
+        .nav-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu li a {
+            text-decoration: none;
+            color: #000;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-menu li a:hover {
+            color: #ff4d4d;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu li a::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .nav-menu li a[href="admin_profile.html"]::before { content: '👤'; }
+        .nav-menu li a[href="add_event.html"]::before { content: '➕'; }
+        .nav-menu li a[href="qr_scanner.html"]::before { content: '📷'; }
+        .nav-menu li a[href="logout.html"]::before { content: '🚪'; }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #e04343;
+            transform: scale(1.05);
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .nav-menu.active ~ header,
+        .nav-menu.active ~ main {
+            margin-left: 250px;
+        }
+
+        body.sidebar-open {
+            margin-left: 250px;
+        }
+
+        .admin-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ff4d4d;
+        }
+
+        .add-event-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .add-event-form input,
+        .add-event-form textarea,
+        .add-event-form select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .add-event-form input:focus,
+        .add-event-form textarea:focus,
+        .add-event-form select:focus {
+            border: 1px solid #ff4d4d;
+            outline: none;
+        }
+
+        .add-event-form button {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .add-event-form button:hover {
+            background: #e04343;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                width: 200px;
+            }
+
+            .nav-menu.active ~ header,
+            .nav-menu.active ~ main,
+            body.sidebar-open {
+                margin-left: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu-icon">☰</div>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="admin_profile.html" class="nav-link">Profile</a></li>
+                <li><a href="add_event.html" class="nav-link">Add Event</a></li>
+                <li><a href="qr_scanner.html" class="nav-link">QR Scanner</a></li>
+                <li><a href="logout.html" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+        <h1>Fiesta Admin</h1>
+        <button class="logout-btn">LOGOUT</button>
+    </header>
+    <main>
+        <div class="admin-section">
+            <h2>Edit Event</h2>
+            <form class="add-event-form" id="addEventForm">
+                <input type="text" id="eventName" placeholder="Event Name (e.g., Drama Fest 2024)" required>
+                <input type="text" id="eventCost" placeholder="Cost (e.g., Free or 50)" required>
+                <input type="date" id="eventDate" required>
+                <input type="text" id="eventTime" placeholder="Time (e.g., 5:00 PM - 9:00 PM)" required>
+                <input type="text" id="eventLocation" placeholder="Location (e.g., Theater Hall)" required>
+                <input type="url" id="eventImage" placeholder="Image URL" required>
+                <select id="eventStatus" required>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <button type="button" onclick="addEvent()">Add Event</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Sidebar toggle
+        const menuIcon = document.querySelector('.menu-icon');
+        const navMenu = document.querySelector('.nav-menu');
+        const body = document.querySelector('body');
+
+        menuIcon.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            body.classList.toggle('sidebar-open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuIcon.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                body.classList.remove('sidebar-open');
+            }
+        });
+
+        // Navigation link interactivity
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                console.log(Navigating to ${href});
+                window.location.href = href;
+            });
+        });
+
+        // Logout button
+        document.querySelector('.logout-btn').addEventListener('click', () => {
+            console.log('Logging out...');
+            window.location.href = 'logout.html';
+        });
+
+        async function addEvent() {
+            // Collect form data into variables
+            const name = document.getElementById('eventName').value;
+            const cost = document.getElementById('eventCost').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const location = document.getElementById('eventLocation').value;
+            const image = document.getElementById('eventImage').value;
+            const status = document.getElementById('eventStatus').value;
+
+            // Generate a unique eventId
+            const randomNum = Math.floor(100 + Math.random() * 900);
+            const eventId = EVT${randomNum};
+
+            // Basic validation
+            if (!name || !cost || !date || !time || !location || !image || !status) {
+                alert("Please fill in all event details.");
+                return;
+            }
+
+            // Format date to ISO 8601
+            const formattedDate = new Date(date).toISOString();
+
+            // Create event data object
+            const eventData = {
+                eventId: eventId,
+                name: name,
+                cost: cost,
+                date: formattedDate,
+                time: time,
+                location: location,
+                image: image,
+                status: status
+            };
+
+            console.log('Sending event data:', eventData);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(Failed to add event: ${errorText});
+                }
+
+                const result = await response.json();
+                alert("Event added successfully!");
+                document.getElementById('addEventForm').reset();
+                window.location.href = 'admin.html';
+            } catch (error) {
+                console.error('Error adding event:', error);
+                alert(Failed to add event: ${error.message});
+            }
+        }
+    </script>
+</body>
+</html>

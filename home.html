@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiesta - Your Event Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            transition: margin-left 0.3s ease; /* Smooth transition for body content */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: margin-left 0.3s ease; /* Smooth transition for header */
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-icon:hover {
+            transform: rotate(90deg);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Initially hidden off-screen */
+            width: 250px; /* Fixed width for sidebar */
+            height: 100vh; /* Full viewport height */
+            background-color: #ffffff; /* Dark background like SRM portal */
+            z-index: 101;
+            transition: left 0.3s ease; /* Smooth slide-in/out animation */
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .nav-menu.active {
+            left: 0; /* Slide in when active */
+        }
+
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 60px; /* Space for header */
+        }
+
+        .nav-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle separator */
+        }
+
+        .nav-menu li a {
+            text-decoration: none;
+            color: #000; /* Light text color */
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-menu li a:hover {
+            color: #ff4d4d; /* Fiesta red on hover */
+            background: rgba(255, 255, 255, 0.1); /* Slight background on hover */
+        }
+
+        .nav-menu li a::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* Add icons for each menu item */
+        .nav-menu li a[href="profile.html"]::before {
+            content: '👤'; /* Profile icon */
+        }
+
+        .nav-menu li a[href="events.html"]::before {
+            content: '📅'; /* Events icon */
+        }
+
+        .nav-menu li a[href="myqr.html"]::before {
+            content: '🔲'; /* MyQR icon */
+        }
+
+        .nav-menu li a[href="logout.html"]::before {
+            content: '🚪'; /* Logout icon */
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .signup-btn {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .signup-btn:hover {
+            background: #e04343;
+            transform: scale(1.05);
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+            transition: margin-left 0.3s ease; /* Smooth transition for main content */
+        }
+
+        /* Shift content when sidebar is active */
+        .nav-menu.active ~ header,
+        .nav-menu.active ~ main {
+            margin-left: 250px; /* Push content to the right when sidebar is open */
+        }
+
+        /* Fallback: Add a class to body to ensure content shift */
+        body.sidebar-open {
+            margin-left: 250px;
+        }
+
+        .hero-section {
+            margin-bottom: 40px;
+            padding: 60px 20px;
+            background-image: url(''); /* Removed the background image for now */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            border-radius: 15px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3); /* Lighter overlay for better contrast with black text */
+            border-radius: 15px;
+            z-index: 1;
+        }
+
+        .hero-section > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-events-btn {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
+        }
+
+        .view-events-btn:hover {
+            background: #ff4d4d;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .tagline {
+            font-size: 24px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #000;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .quote {
+            font-size: 18px;
+            font-style: italic;
+            color: #000;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            margin: 20px 0;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .search-bar {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 40px;
+            animation: fadeIn 2.5s ease-in-out;
+            border: solid 2px black;
+            border-radius: 20px;
+        }
+
+        .search-bar input {
+            padding: 12px 40px 12px 15px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+            transition: border 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .search-bar input:focus {
+            border: 1px solid #ff4d4d;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #333;
+        }
+
+        .features-section {
+            margin-top: 40px;
+            animation: fadeIn 3s ease-in-out;
+        }
+
+        .features-title {
+            background-color: #ff4d4d;
+            color: #fff;
+            display: block;
+            width: fit-content;
+            margin: 0 auto 20px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .feature {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .testimonials-section {
+            margin: 40px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 3.5s ease-in-out;
+        }
+
+        .testimonials-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .testimonial {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #ff4d4d;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .testimonial p {
+            font-size: 16px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .testimonial-author {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .cta-section {
+            margin: 40px 0;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #ff4d4d, #e04343);
+            color: #fff;
+            text-align: center;
+            animation: fadeIn 4s ease-in-out;
+        }
+
+        .cta-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .cta-btn {
+            background-color: #fff;
+            color: #ff4d4d;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+
+        .cta-btn:hover {
+            background: #000;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .nav-menu {
+                width: 200px; /* Slightly smaller width on mobile */
+            }
+
+            .nav-menu.active ~ header,
+            .nav-menu.active ~ main,
+            body.sidebar-open {
+                margin-left: 200px; /* Adjust margin for smaller sidebar */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu-icon">☰</div>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="profile.html" class="nav-link">Profile</a></li>
+                <li><a href="events.html" class="nav-link">Events</a></li>
+                <li><a href="myqr.html" class="nav-link">MyQR</a></li>
+                <li><a href="home.html" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+        <h1>Fiesta</h1>
+        <button class="signup-btn">SIGN UP</button>
+    </header>
+    <main>
+        <div class="hero-section">
+            <button class="view-events-btn">View Events</button>
+            <p class="tagline">Plan, Manage, and Celebrate <br> Every Moment with Ease</p>
+            <p class="quote">"Turn your events into unforgettable memories with Fiesta!"</p>
+            <div class="search-bar">
+                <input type="text" placeholder="Search events...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2 class="features-title">UNIQUE FEATURES</h2>
+            <div class="features">
+                <div class="feature">
+                    <h3>SECURE QR-BASED ENTRY AND EXIT</h3>
+                    <p>Ensure hassle-free event access with a QR system for streamlined entry and exit. No more long queues—just scan and go!</p>
+                </div>
+                <div class="feature">
+                    <h3>COMPREHENSIVE TICKETING SYSTEM</h3>
+                    <p>Provide students with instant registration and easy access to event details. Manage tickets effortlessly and keep everything organized.</p>
+                </div>
+                <div class="feature">
+                    <h3>REAL-TIME EVENT UPDATES</h3>
+                    <p>Stay informed with live updates on event schedules, locations, and more. Never miss a moment with Fiesta's notifications.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials-section">
+            <h2 class="testimonials-title">What Our Users Say</h2>
+            <div class="testimonial">
+                <p>"Fiesta made organizing my college fest a breeze! The QR entry system was a game-changer."</p>
+                <p class="testimonial-author">- Sarah K., Event Organizer</p>
+            </div>
+            <div class="testimonial">
+                <p>"I love how easy it is to find and join events with Fiesta. It’s my go-to app for every celebration!"</p>
+                <p class="testimonial-author">- Michael R., Student</p>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2 class="cta-title">Ready to Celebrate?</h2>
+            <p class="quote">"Join thousands of users who trust Fiesta to make their events extraordinary."</p>
+            <button class="cta-btn">Get Started Now</button>
+        </div>
+    </main>
+    <script>
+        // Toggle the nav menu on burger icon click
+        const menuIcon = document.querySelector('.menu-icon');
+        const navMenu = document.querySelector('.nav-menu');
+        const body = document.querySelector('body');
+
+        menuIcon.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            body.classList.toggle('sidebar-open'); // Add/remove class to body for fallback
+        });
+
+        // Close the nav menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuIcon.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                body.classList.remove('sidebar-open'); // Remove class from body
+            }
+        });
+
+        // Basic interactivity for nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                alert(`Navigating to ${href.replace('.html', '')} page...`);
+                window.location.href = href; // Redirect to the page
+            });
+        });
+
+        // Basic interactivity for buttons
+        document.querySelector('.signup-btn').addEventListener('click', () => {
+            window.location.href = 'sign_up.html';
+        });
+
+        document.querySelector('.view-events-btn').addEventListener('click', () => {
+            alert('View Events button clicked! Redirecting to events page...');
+        });
+
+        document.querySelector('.cta-btn').addEventListener('click', () => {
+            window.location.href = 'sign_up.html';
+        });
+    </script>
+</body>
+</html>

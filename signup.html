@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiesta - SignUp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5; /* Matching Fiesta's background */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border: 1px solid #ccc; /* Subtle border like Fiesta's cards */
+            border-radius: 15px; /* Rounded corners */
+            padding: 30px;
+            max-width: 350px; /* Matching Fiesta's card width */
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow like Fiesta */
+        }
+
+        .container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-field {
+            width: 100%; /* Full width to match Fiesta's input style */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc; /* Matching Fiesta's input style */
+            border-radius: 20px; /* Rounded input field */
+            font-size: 14px;
+            outline: none;
+            background: transparent;
+        }
+
+        .input-field:focus {
+            border: 1px solid #ff4d4d; /* Red border on focus to match Fiesta's color scheme */
+        }
+
+        .show-password-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .show-password {
+            font-size: 14px;
+            color: #666; /* Matching Fiesta's text color */
+            cursor: pointer;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 25px;
+            background-color: #ff4d4d; /* Red button to match Fiesta's color scheme */
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0; /* Adjusted margin for consistency */
+        }
+
+        .signup-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666; /* Matching Fiesta's text color */
+        }
+
+        .signup-text a {
+            color: #ff4d4d; /* Red link to match Fiesta's style */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-text a:hover {
+            color: #e04343; /* Slightly darker red on hover for contrast */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>SignUp</h2>
+        <input type="text" id="name" class="input-field" placeholder="Name"><br>
+        <input type="email" id="email" class="input-field" placeholder="Email"><br>
+        <input type="text" id="number" class="input-field" placeholder="Mobile Number"><br>
+        <input type="password" id="password" class="input-field" placeholder="Password"><br>
+        <div class="show-password-container">
+            <input type="checkbox" id="showPassword" onclick="togglePassword()">
+            <label for="showPassword" class="show-password">Show Password</label>
+        </div>
+        <button class="login-btn" onclick="validate()">SignUp</button><br>
+        <p class="signup-text">Already a member? <a href="signin.html" class="sign">SignIn</a></p>
+    </div>
+
+    <script>
+        function togglePassword() {
+            let fields = [document.getElementById("password"), document.getElementById("re-password")];
+            fields.forEach(field => field.type = field.type === "password" ? "text" : "password");
+        }
+
+        function validate() {
+            let name = document.getElementById("name").value.trim();
+            let email = document.getElementById("email").value.trim();
+            let phone = document.getElementById("number").value.trim();
+            let password = document.getElementById("password").value.trim();
+
+            let phonePattern = /^\d{10}$/;
+            let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!name) {
+                alert("Please enter your name");
+                return false;
+            }
+            if (!email || !emailPattern.test(email)) {
+                alert("Please enter a valid email (example@example.com)");
+                return false;
+            }
+            if (!phone || !phonePattern.test(phone)) {
+                alert("Phone number must be exactly 10 digits");
+                return false;
+            }
+            if (!password || !passwordPattern.test(password)) {
+                alert("Password must be at least 8 characters long, contain 1 uppercase, 1 number, and 1 special character");
+                return false;
+            }
+            return true;
+        }
+
+        document.querySelector(".login-btn").addEventListener("click", async () => {
+            if (!validate()) return;
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const phone = document.getElementById("number").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            try {
+                const response = await fetch("http://localhost:3000/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, phone, password }),
+                });
+
+                const data = await response.json();
+                alert(data.message);
+
+                if (response.ok) window.location.href = "signin.html"; // Redirect to login
+            } catch (error) {
+                alert("Signup failed! Try again.");
+                console.error("Error:", error);
+            }
+        });
+    </script>
+</body>
+</html>

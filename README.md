@@ -1,2 +1,25 @@
 # Bits_hackathon
-Fiesta is a versatile event management web application designed to enhance the planning, execution, and enjoyment of events. It offers a range of powerful functionalities, including a secure QR-based entry and exit system for streamlined attendee access, a comprehensive ticketing system for instant registration and event detail management, and real-time updates to keep users informed about schedules and changes. The app integrates Google Sign-In for seamless authentication, allowing users to quickly sign up or log in using their Google accounts. Once authenticated, users can access a personalized profile page displaying details such as name, email, and join date, fetched dynamically from a MongoDB database. With its responsive design, vibrant UI featuring smooth animations and hover effects, Fiesta ensures an engaging experience for both event organizers and attendees across all devices.
+Fiesta is a versatile event management web application designed to enhance the planning, execution, and enjoyment of events. It offers a range of powerful functionalities.
+User Features:
+
+Authentication: Login, Sign-up, Forgot Password, Change Password with OTP verification.
+
+Home Page: Displays event details and information.
+
+Events Page: Lists all available events from the database.
+
+Event Registration: Register for events and proceed to the payment page.
+
+Payment Handling: Stores payment details in the database.
+
+QR Code Generation: Users receive a QR code after registration for event entry.
+
+Profile Management: View and update personal details and registered events.
+
+Admin Features:
+
+Event Management: Add and manage events.
+
+Live Tracking: Monitor event check-ins in real time.
+
+QR Code Scanner: Verify users’ registration via QR code.
